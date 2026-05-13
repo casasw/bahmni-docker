@@ -27,7 +27,7 @@ services:
   bahmni-config:
     image: 'bahmni/standard-config:${CONFIG_IMAGE_TAG:?}'
     volumes:
-      - '${CONFIG_VOLUME:?}:/usr/local/bahmni_config'
+      - 'bahmni-config:/usr/local/bahmni_config'
     logging: *log-config
     restart: ${RESTART_POLICY}
 
@@ -35,7 +35,7 @@ services:
     profiles: ["openelis","bahmni-standard"]
     image: 'bahmni/openelis:${OPENELIS_IMAGE_TAG:?[ERROR]}'
     volumes:
-      - "${CONFIG_VOLUME:?}:/etc/bahmni_config/:ro"
+      - "bahmni-config:/etc/bahmni_config/:ro"
       - "bahmni-lab-results:/home/bahmni/uploaded_results"
       - "bahmni-uploaded-files:/home/bahmni/uploaded-files"
     environment:
@@ -58,7 +58,6 @@ services:
     profiles: ["openelis","bahmni-standard"]
     image: '${OPENELIS_DB_IMAGE_NAME:?[ERROR]}'
     volumes:
-      - '${OPENELIS_DB_DUMP_PATH}:/resources/db-dump'
       - 'openelisdbdata:/var/lib/postgresql/data'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U clinlims']
@@ -78,7 +77,6 @@ services:
     image: 'bahmni/odoo-16:${ODOO_IMAGE_TAG:?[ERROR]}'
     volumes:
       - odooappdata:/var/lib/odoo
-      - ${EXTRA_ADDONS_PATH}:/mnt/extra-addons
       - odoofilestore:/var/lib/odoo/filestore
       - odooconfig:/etc/odoo
     depends_on:
@@ -145,7 +143,6 @@ services:
       - '8070:8069'
     volumes:
       - odoo10appdata:/var/lib/odoo
-      - ${EXTRA_ODOO_10_ADDONS_PATH}:/mnt/extra-addons
     depends_on:
       odoo-10-db:
         condition: service_healthy
@@ -161,7 +158,6 @@ services:
     profiles: ["odoo-10"]
     image: '${ODOO_10_DB_IMAGE_NAME:?[ERROR]}'
     volumes:
-      - '${ODOO_10_DB_DUMP_PATH}:/resources/db-dump'
       - 'odoo10dbdata:/var/lib/postgresql/data'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U odoo']
@@ -238,7 +234,7 @@ services:
       LUCENE_MATCH_TYPE: ${LUCENE_MATCH_TYPE}
       DOCUMENT_MAX_SIZE_MB: ${DOCUMENT_MAX_SIZE_MB}
     volumes:
-      - "${CONFIG_VOLUME:?}:/etc/bahmni_config/:ro"
+      - "bahmni-config:/etc/bahmni_config/:ro"
       - "bahmni-lab-results:/home/bahmni/uploaded_results"
       - "bahmni-uploaded-files:/home/bahmni/uploaded-files"
       - 'bahmni-patient-images:/home/bahmni/patient_images'
@@ -343,7 +339,7 @@ services:
     image: bahmni/bahmni-web:${BAHMNI_WEB_IMAGE_TAG:?}
     profiles: ["emr","bahmni-standard","bahmni-mart"]
     volumes:
-      - "${CONFIG_VOLUME:?}:/usr/local/apache2/htdocs/bahmni_config/:ro"
+      - "bahmni-config:/usr/local/apache2/htdocs/bahmni_config/:ro"
     logging: *log-config
     restart: ${RESTART_POLICY}
 
@@ -384,7 +380,7 @@ services:
       ODOO_DB_PASSWORD: ${ODOO_DB_PASSWORD:?}
       ICD10_LITE_INDICATOR: ${ICD10_LITE_INDICATOR}
     volumes:
-      - "${CONFIG_VOLUME:?}:/etc/bahmni_config/:ro"
+      - "bahmni-config:/etc/bahmni_config/:ro"
       - "bahmni-queued-reports:/home/bahmni/reports"
     depends_on:
       - reportsdb
@@ -539,7 +535,6 @@ services:
     profiles: ["restore"]
     command: "bash /restore_docker_volumes.sh"
     volumes:
-        - "${RESTORE_ARTIFACTS_PATH}:/restore-artifacts"
         - '../backup_restore/restore_docker_volumes.sh:/restore_docker_volumes.sh'
         - 'bahmni-patient-images:/mounts/bahmni-patient-images'
         - 'bahmni-document-images:/mounts/bahmni-document-images'
