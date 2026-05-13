@@ -18,13 +18,10 @@ x-log-config: &log-config
 
 services:
 
-  proxy:
+   proxy:
     image: 'bahmni/proxy:${PROXY_IMAGE_TAG:?}'
     #volumes:
       # - ${CERTIFICATE_PATH}:/etc/tls
-    ports:
-      - '80:80'
-      - '443:443'
     logging: *log-config
     restart: ${RESTART_POLICY}
     environment:
@@ -82,8 +79,6 @@ services:
   odoo:
     profiles: ["odoo","bahmni-standard"]
     image: 'bahmni/odoo-16:${ODOO_IMAGE_TAG:?[ERROR]}'
-    ports:
-      - '8069:8069'
     volumes:
       - odooappdata:/var/lib/odoo
       - ${EXTRA_ADDONS_PATH}:/mnt/extra-addons
@@ -464,9 +459,6 @@ services:
       DB_NAME: ${DCM4CHEE_DB_NAME:?}
       DB_USERNAME: ${DCM4CHEE_DB_USERNAME:?}
       DB_PASSWORD: ${DCM4CHEE_DB_PASSWORD:?}
-    ports:
-      - '8055:8055'
-      - '11112:11112'
     volumes:
       - 'dcm4chee-archive:/var/lib/bahmni/dcm4chee/server/default/archive'
       - 'dcm4chee-config:/var/lib/bahmni/dcm4chee/server/default/data/xmbean-attrs'
@@ -503,7 +495,7 @@ services:
       PACS_INTEGRATION_DB_USERNAME: ${PACS_INTEGRATION_DB_USERNAME:?}
       PACS_INTEGRATION_DB_PASSWORD: ${PACS_INTEGRATION_DB_PASSWORD:?}
     volumes:
-      - '${PWD}/init_pacs_dbs.sh:/docker-entrypoint-initdb.d/init_pacs_dbs.sh'
+      - './init_pacs_dbs.sh:/docker-entrypoint-initdb.d/init_pacs_dbs.sh'
       - 'pacsdbdata:/var/lib/postgresql/data'
     logging: *log-config
     restart: ${RESTART_POLICY}
