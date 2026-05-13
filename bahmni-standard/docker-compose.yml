@@ -12,16 +12,13 @@ x-loki-logging: &loki
     loki-retries: "3"
 
 x-log-config: &log-config
-  # update this value to *loki if needed to see logs in grafana dashboard.
   <<: *default
 
 
 services:
 
-   proxy:
+  proxy:
     image: 'bahmni/proxy:${PROXY_IMAGE_TAG:?}'
-    #volumes:
-      # - ${CERTIFICATE_PATH}:/etc/tls
     logging: *log-config
     restart: ${RESTART_POLICY}
     environment:
@@ -84,8 +81,6 @@ services:
       - ${EXTRA_ADDONS_PATH}:/mnt/extra-addons
       - odoofilestore:/var/lib/odoo/filestore
       - odooconfig:/etc/odoo
-      # # Uncomment the below volume only when you need to modify existing bahmni-addons. Also make sure to update the .env file variable with bahmni-odoo-modules github repo cloned path.
-      # - ${BAHMNI_ODOO_MODULES_PATH}:/opt/bahmni-erp/bahmni-addons
     depends_on:
       odoodb:
         condition: service_healthy
@@ -143,7 +138,6 @@ services:
     logging: *log-config
     restart: ${RESTART_POLICY}
 
-#Serivces for odoo-10. These services are used for backward compatibility with bahmni 0.93
   odoo-10:
     profiles: ["odoo-10"]
     image: 'bahmni/odoo-10:${ODOO_IMAGE_TAG:?[ERROR]}'
@@ -152,8 +146,6 @@ services:
     volumes:
       - odoo10appdata:/var/lib/odoo
       - ${EXTRA_ODOO_10_ADDONS_PATH}:/mnt/extra-addons
-      # # Uncomment the below volume only when you need to modify existing bahmni-addons. Also make sure to update the .env file variable with odoo-modules github repo cloned path.
-      # - ${BAHMNI_ODOO_10_MODULES_PATH}:/opt/bahmni-erp/bahmni-addons
     depends_on:
       odoo-10-db:
         condition: service_healthy
@@ -221,7 +213,6 @@ services:
       OMRS_CREATE_TABLES: ${OPENMRS_DB_CREATE_TABLES}
       OMRS_AUTO_UPDATE_DATABASE: ${OPENMRS_DB_AUTO_UPDATE}
       OMRS_MODULE_WEB_ADMIN: ${OPENMRS_MODULE_WEB_ADMIN}
-      # OMRS_DEV_DEBUG_PORT: ${OMRS_DEV_DEBUG_PORT}
       OMRS_JAVA_SERVER_OPTS: ${OMRS_JAVA_SERVER_OPTS}
       OMRS_JAVA_MEMORY_OPTS: ${OMRS_JAVA_MEMORY_OPTS}
       OPENELIS_HOST: ${OPENELIS_HOST:?}
@@ -246,13 +237,10 @@ services:
       OMRS_DB_EXTRA_ARGS: ${OMRS_DB_EXTRA_ARGS}
       LUCENE_MATCH_TYPE: ${LUCENE_MATCH_TYPE}
       DOCUMENT_MAX_SIZE_MB: ${DOCUMENT_MAX_SIZE_MB}
-    #ports:
-      # - ${OMRS_DEV_DEBUG_PORT}:${OMRS_DEV_DEBUG_PORT}
     volumes:
       - "${CONFIG_VOLUME:?}:/etc/bahmni_config/:ro"
       - "bahmni-lab-results:/home/bahmni/uploaded_results"
       - "bahmni-uploaded-files:/home/bahmni/uploaded-files"
-      # - "${BAHMNI_OPENMRS_MODULES_PATH:?}/:/openmrs/data/modules/"
       - 'bahmni-patient-images:/home/bahmni/patient_images'
       - 'bahmni-document-images:/home/bahmni/document_images'
       - 'bahmni-clinical-forms:/home/bahmni/clinical_forms'
@@ -356,16 +344,12 @@ services:
     profiles: ["emr","bahmni-standard","bahmni-mart"]
     volumes:
       - "${CONFIG_VOLUME:?}:/usr/local/apache2/htdocs/bahmni_config/:ro"
-    #   - "${BAHMNI_APPS_PATH:?}/ui/app/:/usr/local/apache2/htdocs/bahmni"
-    #   - "${BAHMNI_APPS_PATH:?}/ui/node_modules/@bower_components/:/usr/local/apache2/htdocs/bahmni/components"
     logging: *log-config
     restart: ${RESTART_POLICY}
 
   bahmni-apps-frontend:
     image: bahmni/bahmni-apps-frontend:${BAHMNI_APPS_FRONTEND_IMAGE_TAG:?}
     profiles: ["emr","bahmni-standard"]
-    # volumes:
-    #  - "${BAHMNI_APPS_FRONTEND_PATH:?}/distro/dist/:/usr/local/apache2/htdocs/bahmni-new"
     logging: *log-config
     restart: ${RESTART_POLICY}
 
@@ -373,8 +357,6 @@ services:
   implementer-interface:
     image: bahmni/implementer-interface:${IMPLEMENTER_INTERFACE_IMAGE_TAG:?}
     profiles: ["implementer-interface","emr","bahmni-standard"]
-    #volumes:
-    #  - "${IMPLEMENTER_INTERFACE_CODE_PATH:?}/dist:/usr/local/apache2/htdocs/implementer-interface"
     depends_on:
       - openmrs
     logging: *log-config
@@ -404,7 +386,6 @@ services:
     volumes:
       - "${CONFIG_VOLUME:?}:/etc/bahmni_config/:ro"
       - "bahmni-queued-reports:/home/bahmni/reports"
-    # - "../snomed-resources/icd10-extensions-1.0.0-SNAPSHOT.jar:/var/run/bahmni-reports/bahmni-reports/WEB-INF/lib/icd10-extensions-1.0.0-SNAPSHOT.jar:ro"
     depends_on:
       - reportsdb
       - openmrsdb
@@ -446,8 +427,6 @@ services:
     image: bahmni/appointments:${APPOINTMENTS_IMAGE_TAG:?}
     profiles: ["emr","bahmni-standard"]
     restart: ${RESTART_POLICY}
-    # volumes:
-    # - "${APPOINTMENTS_PATH:?}/dist/:/usr/local/apache2/htdocs/appointments"
 
   dcm4chee:
     image: bahmni/dcm4chee:${DCM4CHEE_IMAGE_TAG:?}
@@ -576,8 +555,6 @@ services:
     container_name: ipd
     profiles: ["emr","bahmni-standard","bahmni-mart"]
     restart: ${RESTART_POLICY}
-    # volumes:
-    #   - "${IPD_PATH:?}/dist/federation/:/usr/local/apache2/htdocs/ipd"
     logging: *log-config
 
   cdss:
@@ -608,7 +585,6 @@ services:
     logging: *log-config
     volumes:
       - '../snomed-resources/load-snowstorm-data.sh:/load-snowstorm-data.sh'
-    #  - "${SNOWSTORM_RF2_FILE_PATH:?}:/snowstorm-data/snomed-data.zip:ro"
 
 
 volumes:
